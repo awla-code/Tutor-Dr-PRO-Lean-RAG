@@ -17,6 +17,17 @@ EMBED_MODEL = "BAAI/bge-large-en-v1.5"
 # El modelo Llama 3 70B gratuito
 LLM_MODEL = "mistralai/Mistral-7B-Instruct-v0.2" 
 
+#limpiar Caracteres No-ASCII de la Pregunta
+import unicodedata
+
+def clean_text_for_api(text):
+    """Remueve caracteres problematicos como el signo de interrogación de apertura."""
+    # Se asegura de que la codificación sea UTF-8 y luego la decodifica
+    text = text.encode('utf-8', 'ignore').decode('utf-8')
+    # Remueve el signo de interrogación de apertura y otros caracteres no-ASCII si persisten
+    cleaned_text = text.replace('¿', '').replace('¡', '')
+    return cleaned_text
+
 # Inicializar los componentes de LangChain con caché
 @st.cache_resource
 def setup_rag_components():
@@ -47,7 +58,7 @@ def setup_rag_components():
         "Lean Management que te proporcionaron. Mantén un tono profesional y motivador."
     )
 
-    chain = ConversationalRetrievalChain.from_llm(
+   chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
         retriever=vector_store.as_retriever(search_kwargs={"k": 3}),
         return_source_documents=False 
@@ -55,21 +66,16 @@ def setup_rag_components():
 
     # Inyectamos el system prompt para guiar el LLM (esto mejora el comportamiento)
     def custom_chain(data):
-        # Formato de entrada para Llama 3
-        formatted_question = f"<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n{system_prompt}<|eot_id|>"
+        # APLICAMOS LA LIMPIEZA DEL PROMPT ANTES DE USARLO
+        prompt_limpio = clean_text_for_api(data["question"]) 
+        
+        # El formato LLama 3 se aplica internamente en langchain_together/llms
+        # Aquí sólo pasamos el prompt limpio y el historial
+        
+        # Usamos el prompt limpio para la recuperación (embedding) y para la llamada final
+        return chain.invoke({"question": prompt_limpio, "chat_history": data["chat_history"]})
 
-        # Incluir el historial de chat si existe
-        if data["chat_history"]:
-            history_str = "\n".join([f"User: {u}\nAssistant: {a}" for u, a in data["chat_history"]])
-            formatted_question += f"<|start_header_id|>user<|end_header_id|>\nHistorial: {history_str}\nPregunta actual: {data['question']}<|eot_id|>"
-        else:
-             formatted_question += f"<|start_header_id|>user<|end_header_id|>\n{data['question']}<|eot_id|>"
-
-        # Usamos el historial original de LangChain para la recuperación, pero le pasamos la pregunta formateada al LLM
-        return chain.invoke({"question": data["question"], "chat_history": data["chat_history"]})
-
-    return custom_chain
-
+    return custom_chain # <--- Esto es lo que retorna setup_rag_components
 
 # --- Interfaz de Streamlit ---
 st.set_page_config(page_title="Dr. PRO: Tutor IA Lean Management", layout="wide")
