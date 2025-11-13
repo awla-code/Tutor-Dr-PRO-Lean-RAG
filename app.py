@@ -55,7 +55,7 @@ def setup_rag_components():
     system_prompt = (
         "Eres Dr. PRO, un tutor IA experto en Lean Management. "
         "Tu objetivo es responder preguntas de manera clara, concisa y usando los documentos de "
-        "Lean Management que te proporcionaron. Mantén un tono profesional y motivador."
+        "Lean Management que te proporcionaron. Manten un tono profesional y motivador."
     )
 
     chain = ConversationalRetrievalChain.from_llm(
