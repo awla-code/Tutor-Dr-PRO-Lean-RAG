@@ -69,7 +69,7 @@ mypy_extensions==1.1.0
 narwhals==2.11.0
 numpy
 oauthlib==3.3.1
-onnxruntime==1.19.2
+onnxruntime
 openai==2.8.0
 opentelemetry-api==1.38.0
 opentelemetry-exporter-otlp-proto-common==1.38.0
@@ -94,12 +94,12 @@ pydantic-settings==2.11.0
 pydantic_core==2.41.5
 pydeck==0.9.1
 Pygments==2.19.2
-pypdf==6.2.0
+pypdf
 PyPika==0.48.9
 pyproject_hooks==1.2.0
 pyreadline3==3.5.4
 python-dateutil==2.9.0.post0
-python-dotenv==1.2.1
+python-dotenv
 pytz==2025.2
 PyYAML==6.0.3
 referencing==0.36.2
