@@ -58,7 +58,7 @@ def setup_rag_components():
         "Lean Management que te proporcionaron. Mantén un tono profesional y motivador."
     )
 
-   chain = ConversationalRetrievalChain.from_llm(
+    chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
         retriever=vector_store.as_retriever(search_kwargs={"k": 3}),
         return_source_documents=False 
